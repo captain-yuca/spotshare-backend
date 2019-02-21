@@ -4,7 +4,8 @@
   "description": "REST API for the Spot Share app",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "./node_modules/.bin/nodemon --ignore test/ ",
+    "test": "./node_modules/.bin/standard"
   },
   "repository": {
     "type": "git",
