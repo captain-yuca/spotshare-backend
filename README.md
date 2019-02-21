@@ -37,6 +37,9 @@ npm start
 ```
 ## Development
 
+This repository uses git-flow. For more information:
+https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+
 ### Migrations
 
 In order to manage migrations, you must install knex globally:
