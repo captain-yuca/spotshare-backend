@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/nodemon --ignore test/ ",
-    "test": "./node_modules/.bin/standard"
+    "test": "./node_modules/.bin/standard && ./node_modules/.bin/jest"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,9 @@
     "pre-commit": "^1.2.2",
     "standard": "^12.0.1"
   },
+  "pre-commit": [
+    "test"
+  ],
   "dependencies": {
     "blipp": "^3.1.2",
     "boom": "^7.3.0",
@@ -44,5 +47,8 @@
     "objection": "^1.6.2",
     "sqlite": "^3.0.2",
     "vision": "^5.4.4"
+  },
+  "standard": {
+    "env": [ "jest" ]
   }
 }
