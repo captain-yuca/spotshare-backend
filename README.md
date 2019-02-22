@@ -22,6 +22,10 @@ After cloning the repository, run the following to install the dependencies:
 ```
 npm install
 ```
+In order to manage migrations, you must install knex globally:
+```
+npm install knex -g
+```
 
 For local development, you must also apply migrations to a SQLite3 database. This is done by running:
 
