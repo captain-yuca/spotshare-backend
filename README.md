@@ -65,7 +65,7 @@ For more information, go to https://knexjs.org/#Migrations-CLI
 
 ## Testing
 
-Not Determined
+Most of the output validation goes in the individual Joi validations for each of the resource endpoints. Any extra validation testing will be done in the tests.
 
 ## Deployment
 
