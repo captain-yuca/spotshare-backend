@@ -6,8 +6,8 @@ const factory = require('./factories')
 // const databaseCleaner = new DatabaseCleaner('sqlite')
 const Knex = require('knex')
 const knexConfig = require('../knexfile')
-const fs = require('fs')
-const path = require('path')
+const knexCleaner = require('knex-cleaner')
+
 // var sqlite3 = require('sqlite3')
 
 describe('login', () => {
@@ -16,11 +16,11 @@ describe('login', () => {
   let user
   let knex = Knex(knexConfig.testing)
   beforeAll(async () => {
-    fs.unlinkSync(path.resolve('./test.sqlite3'))
-    await knex.migrate.latest()
+    // await knex.migrate.latest()
   })
 
   beforeEach(async () => {
+    await knexCleaner.clean(knex)
     user = await factory.create('user')
     server = await createServer
   })
