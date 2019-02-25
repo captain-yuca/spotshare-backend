@@ -2,15 +2,26 @@
 
 const createServer = require('../lib')
 const factory = require('./factories')
+// const DatabaseCleaner = require('database-cleaner')
+// const databaseCleaner = new DatabaseCleaner('sqlite')
+const Knex = require('knex')
+const knexConfig = require('../knexfile')
+const fs = require('fs')
+const path = require('path')
+// var sqlite3 = require('sqlite3')
 
 describe('login', () => {
   let server
+  // let client
   let user
+  let knex = Knex(knexConfig.testing)
   beforeAll(async () => {
-    user = await factory.create('user')
+    fs.unlinkSync(path.resolve('./test.sqlite3'))
+    await knex.migrate.latest()
   })
 
   beforeEach(async () => {
+    user = await factory.create('user')
     server = await createServer
   })
 
@@ -45,7 +56,6 @@ describe('login', () => {
         }
       }
     })
-    console.log(response)
     expect(response.statusCode).toEqual(401)
     var payload = JSON.parse(response.payload)
     expect(payload.error).toEqual('Unauthorized')
