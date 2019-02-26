@@ -45,7 +45,7 @@ describe('login', () => {
     // expect(payload.user.email).toEqual(user.email)
   })
 
-  test('return 401 with invalid credentials', async () => {
+  test('return status 401 with invalid credentials', async () => {
     const response = await server.inject({
       method: 'POST',
       url: '/api/users/login',
@@ -60,5 +60,20 @@ describe('login', () => {
     var payload = JSON.parse(response.payload)
     expect(payload.error).toEqual('Unauthorized')
     expect(payload.message).toEqual('Invalid Credentials')
+  })
+
+  test('return status 400 with invalid request payload', async () => {
+    const response = await server.inject({
+      method: 'POST',
+      url: '/api/users/login',
+      payload: {
+        user: {}
+      }
+    })
+
+    expect(response.statusCode).toEqual(400)
+    var payload = JSON.parse(response.payload)
+    expect(payload.error).toEqual('Bad Request')
+    expect(payload.invalidParameters).toBeDefined()
   })
 })
