@@ -4,7 +4,8 @@ const factory = require('../factories')
 const Knex = require('knex')
 const knexConfig = require('../../knexfile')
 const knexCleaner = require('knex-cleaner')
-
+const extractMethod = require('./helpers').extractMethod
+const UserModel = require('../../lib/modules/models/User')
 describe('users service', () => {
   // let client
   let knex = Knex(knexConfig.testing)
@@ -36,7 +37,7 @@ describe('users service', () => {
 
     let validatePassword = validatePasswordObject.method
     let resultingBool = await validatePassword(user, 'password')
-    expect(resultingBool).toBeTruthy()
+    expect(resultingBool).toBe(true)
   })
 
   test('validatePassword with incorrect credentials returns false', async () => {
@@ -45,7 +46,7 @@ describe('users service', () => {
 
     let validatePassword = validatePasswordObject.method
     let resultingBool = await validatePassword(user, 'invalidPassword')
-    expect(resultingBool).toBeFalsy()
+    expect(resultingBool).toBe(false)
   })
 
   test('toAuthJSONFor returns a valid Auth', async () => {
@@ -58,5 +59,50 @@ describe('users service', () => {
     expect(authResult.username).toEqual(user.username)
     expect(authResult.email).toEqual(user.email)
     expect(authResult.token).toBeDefined()
+  })
+
+  test('userExistsFromEmail returns true for an existing user', async () => {
+    let userExistsFromEmail = extractMethod('services.users.userExistsFromEmail', UserService)
+    let result = await userExistsFromEmail(user.email)
+    expect(result).toBe(true)
+  })
+
+  test('userExistsFromEmail returns false from a non existing user', async () => {
+    let userExistsFromEmail = extractMethod('services.users.userExistsFromEmail', UserService)
+    let result = await userExistsFromEmail('gibberish')
+    expect(result).toBe(false)
+  })
+
+  test('userExistsFromUsername returns true for an existing user', async () => {
+    let userExistsFromUsername = extractMethod('services.users.userExistsFromUsername', UserService)
+    let result = await userExistsFromUsername(user.username)
+    expect(result).toBe(true)
+  })
+
+  test('userExistsFromUsername returns false from a non existing user', async () => {
+    let userExistsFromUsername = extractMethod('services.users.userExistsFromUsername', UserService)
+    let result = await userExistsFromUsername('gibberish')
+    expect(result).toBe(false)
+  })
+
+  test('createUser returns User Object', async () => {
+    let attrs = await factory.attrs('user', { password: 'password' })
+    let createUser = await extractMethod('services.users.createUser', UserService)
+    let result = await createUser(attrs)
+    expect(result).toBeInstanceOf(UserModel)
+    expect(result.username).toEqual(attrs.username)
+    expect(result.email).toEqual(attrs.email)
+  })
+
+  test('createUser creates user in db', async () => {
+    let attrs = await factory.attrs('user', { password: 'password' })
+    let createUser = extractMethod('services.users.createUser', UserService)
+    await createUser(attrs)
+    let queryFromDB = await UserModel.query().findById(attrs.uid)
+    expect(queryFromDB).toBeInstanceOf(Object)
+    expect(queryFromDB.username).toEqual(attrs.username)
+    expect(queryFromDB.email).toEqual(attrs.email)
+    expect(queryFromDB.hash).toBeDefined()
+    expect(queryFromDB.salt).toBeDefined()
   })
 })
