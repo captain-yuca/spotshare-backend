@@ -4,7 +4,7 @@ exports.up = function (knex, Promise) {
     table.increments('id').primary()
     table.string('imgUrl')
     table.string('title')
-    table.string('date')
+    table.date('date')
   })
 }
 
