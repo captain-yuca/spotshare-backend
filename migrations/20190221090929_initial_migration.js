@@ -5,6 +5,7 @@ exports.up = function (knex, Promise) {
     table.string('imgUrl')
     table.string('title')
     table.date('date')
+    table.integer('userId')
   })
 }
 

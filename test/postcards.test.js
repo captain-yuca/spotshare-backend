@@ -13,7 +13,7 @@ const knexCleaner = require('knex-cleaner')
 describe('get postcard', () => {
   let server
   // let client
-  // let user
+  let user
   let postcard
   let knex = Knex(knexConfig.testing)
   beforeAll(async () => {
@@ -22,15 +22,19 @@ describe('get postcard', () => {
 
   beforeEach(async () => {
     await knexCleaner.clean(knex)
-    // user = await factory.create('user')
-    postcard = await factory.create('postcard')
+    user = await factory.create('user')
+    postcard = await factory.create('postcard', { userId: user.uid })
     server = await createServer
   })
 
   test('return status 200', async () => {
+    var { date, id, imgUrl, title } = postcard
     const response = await server.inject({
       method: 'GET',
-      url: '/api/postcards'
+      url: '/api/postcards',
+      headers: {
+        'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+      }
     })
     expect(response.statusCode).toEqual(200)
     var payload = JSON.parse(response.payload)
@@ -38,6 +42,6 @@ describe('get postcard', () => {
     expect(payload.postcards).toBeInstanceOf(Array)
     expect(payload.postcards).toHaveLength(1)
     expect(payload.postcards[0]).toBeDefined()
-    expect(payload.postcards[0]).toMatchObject(postcard)
+    expect(payload.postcards[0]).toMatchObject({ date, id, imgUrl, title })
   })
 })
