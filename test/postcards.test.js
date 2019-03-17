@@ -31,6 +31,35 @@ describe('get postcard', () => {
     var { date, id, imgUrl, title } = postcard
     const response = await server.inject({
       method: 'GET',
+      url: `/api/postcards/${id}`,
+      headers: {
+        'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+      }
+    })
+    expect(response.statusCode).toEqual(200)
+    var payload = JSON.parse(response.payload)
+    expect(payload).toBeInstanceOf(Object)
+    expect(payload.postcard).toBeDefined()
+    expect(payload.postcard).toMatchObject({ date, id, imgUrl, title })
+  })
+})
+
+describe('get multiple postcards', () => {
+  let server
+
+  let user
+  let knex = Knex(knexConfig.testing)
+
+  beforeEach(async () => {
+    await knexCleaner.clean(knex)
+    user = await factory.create('user')
+    await factory.createMany('postcard_without_assoc', 30, { userId: user.uid })
+    server = await createServer
+  })
+
+  test('return 10 postcards by default with 200 status', async () => {
+    const response = await server.inject({
+      method: 'GET',
       url: '/api/postcards',
       headers: {
         'Authorization': `${await server.methods.services.users.generateJWT(user)}`
@@ -40,8 +69,21 @@ describe('get postcard', () => {
     var payload = JSON.parse(response.payload)
     expect(payload).toBeInstanceOf(Object)
     expect(payload.postcards).toBeInstanceOf(Array)
-    expect(payload.postcards).toHaveLength(1)
-    expect(payload.postcards[0]).toBeDefined()
-    expect(payload.postcards[0]).toMatchObject({ date, id, imgUrl, title })
+    expect(payload.postcards).toHaveLength(10)
+  })
+
+  test('return 20 postcards with query params with 200 status', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/api/postcards?limit=20',
+      headers: {
+        'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+      }
+    })
+    expect(response.statusCode).toEqual(200)
+    var payload = JSON.parse(response.payload)
+    expect(payload).toBeInstanceOf(Object)
+    expect(payload.postcards).toBeInstanceOf(Array)
+    expect(payload.postcards).toHaveLength(20)
   })
 })
