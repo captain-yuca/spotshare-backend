@@ -9,5 +9,6 @@ const adapter = new ObjectionAdapter()
 factory.setAdapter(adapter)
 
 require('./users')(factory)
+require('./postcards')(factory)
 
 module.exports = factory
