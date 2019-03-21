@@ -42,6 +42,31 @@ describe('get postcard', () => {
     expect(payload.postcard).toBeDefined()
     expect(payload.postcard).toMatchObject({ date, id, imgUrl, title })
   })
+
+  test('return status 401 with unauthorized user', async () => {
+    var { id } = postcard
+    var unauthorizedUser = await factory.create('user')
+    const response = await server.inject({
+      method: 'GET',
+      url: `/api/postcards/${id}`,
+      headers: {
+        'Authorization': `${await server.methods.services.users.generateJWT(unauthorizedUser)}`
+      }
+    })
+    expect(response.statusCode).toEqual(401)
+  })
+
+  test('return status 404 with nonexistant postcard', async () => {
+    var id = 50000
+    const response = await server.inject({
+      method: 'GET',
+      url: `/api/postcards/${id}`,
+      headers: {
+        'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+      }
+    })
+    expect(response.statusCode).toEqual(404)
+  })
 })
 
 describe('get multiple postcards', () => {
