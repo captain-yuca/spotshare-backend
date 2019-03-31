@@ -4,7 +4,7 @@ exports.up = function (knex, Promise) {
     table.string('username', 20)
     table.string('email')
     table.string('hash')
-    table.string('salt')
+    table.string('salt', 512)
   })
 }
 
