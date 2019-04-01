@@ -20,10 +20,10 @@ describe('Postcard Routes', async () => {
     server = await createServer
     user = await factory.create('user')
     unauthorizedUser = await factory.create('user')
-    // console.log(user.uid)
-    // console.log(unauthorizedUser.uid)
+    console.log(user.uid)
+    console.log(unauthorizedUser.uid)
     postcard = await factory.create('postcard', { userId: user.uid })
-    // console.log(postcard.id)
+    console.log(postcard.id)
     await factory.createMany('postcard_without_assoc', 30, { userId: user.uid })
   })
 
@@ -33,11 +33,12 @@ describe('Postcard Routes', async () => {
   describe('get single Postcard', async () => {
     test('return status 200', async () => {
       var { id } = postcard
+      const { authService } = server.services()
       const response = await server.inject({
         method: 'GET',
         url: `/api/postcards/${id}`,
         headers: {
-          'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+          'Authorization': `${await authService.generateJWT(user)}`
         }
       })
       expect(response.statusCode).toEqual(200)
@@ -51,11 +52,12 @@ describe('Postcard Routes', async () => {
 
     test('return status 401 with unauthorized user', async () => {
       var { id } = postcard
+      const { authService } = server.services()
       const response = await server.inject({
         method: 'GET',
         url: `/api/postcards/${id}`,
         headers: {
-          'Authorization': `${await server.methods.services.users.generateJWT(unauthorizedUser)}`
+          'Authorization': `${await authService.generateJWT(unauthorizedUser)}`
         }
       })
       expect(response.statusCode).toEqual(401)
@@ -63,11 +65,12 @@ describe('Postcard Routes', async () => {
 
     test('return status 404 with nonexistant postcard', async () => {
       var id = -1
+      const { authService } = server.services()
       const response = await server.inject({
         method: 'GET',
         url: `/api/postcards/${id}`,
         headers: {
-          'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+          'Authorization': `${await authService.generateJWT(user)}`
         }
       })
       expect(response.statusCode).toEqual(404)
@@ -82,11 +85,12 @@ describe('Postcard Routes', async () => {
     })
 
     test('return 10 postcards by default with 200 status', async () => {
+      const { authService } = server.services()
       const response = await server.inject({
         method: 'GET',
         url: '/api/postcards',
         headers: {
-          'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+          'Authorization': `${await authService.generateJWT(user)}`
         }
       })
       expect(response.statusCode).toEqual(200)
@@ -97,11 +101,12 @@ describe('Postcard Routes', async () => {
     })
 
     test('return 20 postcards with query params with 200 status', async () => {
+      const { authService } = server.services()
       const response = await server.inject({
         method: 'GET',
         url: '/api/postcards?limit=20',
         headers: {
-          'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+          'Authorization': `${await authService.generateJWT(user)}`
         }
       })
       expect(response.statusCode).toEqual(200)
@@ -113,6 +118,7 @@ describe('Postcard Routes', async () => {
   })
   describe('collect postcard', async () => {
     test('successfully created postcard 200', async () => {
+      const { authService } = server.services()
       const reqPayload = {
         postcard: {
           spotId: 1
@@ -122,7 +128,7 @@ describe('Postcard Routes', async () => {
         method: 'POST',
         url: '/api/postcards',
         headers: {
-          'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+          'Authorization': `${await authService.generateJWT(user)}`
         },
         payload: reqPayload
       })
@@ -131,6 +137,7 @@ describe('Postcard Routes', async () => {
       expect(payload.postcard).toBeInstanceOf(Object)
     })
     test('nonexistant spot 403', async () => {
+      const { authService } = server.services()
       const reqPayload = {
         postcard: {
           spotId: -1
@@ -140,7 +147,7 @@ describe('Postcard Routes', async () => {
         method: 'POST',
         url: '/api/postcards',
         headers: {
-          'Authorization': `${await server.methods.services.users.generateJWT(user)}`
+          'Authorization': `${await authService.generateJWT(user)}`
         },
         payload: reqPayload
       })

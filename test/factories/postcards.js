@@ -1,4 +1,4 @@
-const Postcard = require('../../lib/modules/models/Postcard')
+const Postcard = require('../../lib/modules/postcards/models/Postcard')
 var faker = require('faker')
 
 module.exports = async (factory) => {

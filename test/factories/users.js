@@ -1,4 +1,4 @@
-const User = require('../../lib/modules/models/User')
+const User = require('../../lib/modules/postcards/models/User')
 var faker = require('faker')
 var crypto = require('crypto')
 
