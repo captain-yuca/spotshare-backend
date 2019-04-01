@@ -1,26 +1,25 @@
 /* eslint-env jest */
 
-const createServer = require('../lib')
-const factory = require('./factories')
 // const DatabaseCleaner = require('database-cleaner')
 // const databaseCleaner = new DatabaseCleaner('sqlite')
-const Knex = require('knex')
-const knexConfig = require('../knexfile')
-const knexCleaner = require('knex-cleaner')
+// const Knex = require('knex')
+// const knexConfig = require('../knexfile')
+// const knexCleaner = require('knex-cleaner')
 
 // var sqlite3 = require('sqlite3')
-
+const createServer = require('../lib')
+const factory = require('./factories')
 describe('login', () => {
   let server
   // let client
   let user
-  let knex = Knex(knexConfig.testing)
-  beforeAll(async () => {
-    // await knex.migrate.latest()
-  })
+  // let knex = Knex(knexConfig.testing)
+  // beforeAll(async () => {
+  // await knex.migrate.latest()
+  // })
 
   beforeEach(async () => {
-    await knexCleaner.clean(knex)
+    // await knexCleaner.clean(knex)
     user = await factory.create('user')
     server = await createServer
   })
@@ -81,13 +80,13 @@ describe('login', () => {
 describe('register', () => {
   let server
   // let client
-  let knex = Knex(knexConfig.testing)
+  // let knex = Knex(knexConfig.testing)
   beforeAll(async () => {
     // await knex.migrate.latest()
   })
 
   beforeEach(async () => {
-    await knexCleaner.clean(knex)
+    // await knexCleaner.clean(knex)
     server = await createServer
   })
 

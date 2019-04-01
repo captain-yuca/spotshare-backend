@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/nodemon --ignore test/ ",
-    "test": "./node_modules/.bin/standard && ./node_modules/.bin/jest --runInBand"
+    "test": "./node_modules/.bin/standard && ./node_modules/.bin/jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,8 @@
     "nodemon": "^1.18.10",
     "pre-commit": "^1.2.2",
     "sqlite3": "^4.0.6",
-    "standard": "^12.0.1"
+    "standard": "^12.0.1",
+    "weak": "^1.0.1"
   },
   "pre-commit": [
     "test"
@@ -57,10 +58,12 @@
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.5.0",
     "knex": "^0.16.3",
+    "knex-migrate": "^1.7.2",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "mysql2": "^1.6.5",
     "objection": "^1.6.2",
+    "objection-db-errors": "^1.0.0",
     "pg": "^7.8.1",
     "schmervice": "^1.1.0",
     "schwifty": "^4.2.0",
@@ -71,5 +74,8 @@
     "env": [
       "jest"
     ]
+  },
+  "jest": {
+    "globalTeardown": "./test/teardown.js"
   }
 }

@@ -3,10 +3,10 @@ const UserService = require('../../lib/modules/services/users')
 const factory = require('../factories')
 const Knex = require('knex')
 const knexConfig = require('../../knexfile')
-const knexCleaner = require('knex-cleaner')
+// const knexCleaner = require('knex-cleaner')
 const extractMethod = require('./helpers').extractMethod
 const UserModel = require('../../lib/modules/models/User')
-describe('users service', () => {
+describe('users service', async () => {
   // let client
   let knex = Knex(knexConfig.testing)
   let { Model } = require('objection')
@@ -17,7 +17,7 @@ describe('users service', () => {
   })
 
   beforeEach(async () => {
-    await knexCleaner.clean(knex)
+    // await knexCleaner.clean(knex)
     user = await factory.create('user')
   })
 
@@ -97,8 +97,8 @@ describe('users service', () => {
   test('createUser creates user in db', async () => {
     let attrs = await factory.attrs('user', { password: 'password' })
     let createUser = extractMethod('services.users.createUser', UserService)
-    await createUser(attrs)
-    let queryFromDB = await UserModel.query().findById(attrs.uid)
+    let createdUser = await createUser(attrs)
+    let queryFromDB = await UserModel.query().findById(createdUser.uid)
     expect(queryFromDB).toBeInstanceOf(Object)
     expect(queryFromDB.username).toEqual(attrs.username)
     expect(queryFromDB.email).toEqual(attrs.email)

@@ -27,16 +27,16 @@ describe('Postcard Repository', () => {
 })
 
 describe('Postcard Service integrated with Repositories', () => {
-  const Knex = require('knex')
-  const knexConfig = require('../../knexfile')
-  const knexCleaner = require('knex-cleaner')
+  // const Knex = require('knex')
+  // const knexConfig = require('../../knexfile')
+  // const knexCleaner = require('knex-cleaner')
   // const factory = require('../factories')
   const PostcardRepository = require('../../lib/modules/postcards/repositories/postcardRepository')
   const SpotRepository = require('../../lib/modules/postcards/repositories/spotRepository')
   let server
-  let knex = Knex(knexConfig.testing)
+  // let knex = Knex(knexConfig.testing)
   beforeEach(async () => {
-    await knexCleaner.clean(knex)
+    // await knexCleaner.clean(knex)
     server = await Hapi.Server()
     await server.register(SpotRepository)
     await server.register(PostcardRepository)

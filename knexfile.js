@@ -14,10 +14,15 @@ module.exports = {
   },
 
   testing: {
-    client: 'sqlite3',
+    client: 'pg',
+    ssl: false,
     connection: {
-      filename: './test.sqlite3',
-      timezone: 'UTC',
+      host: '127.0.0.1',
+      port: '5432',
+      user: 'test',
+      password: 'test',
+      database: 'spotshare',
+      ssl: false,
       dateStrings: true
     },
     useNullAsDefault: true
