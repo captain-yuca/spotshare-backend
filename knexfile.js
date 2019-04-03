@@ -5,12 +5,18 @@ pg.defaults.ssl = true
 module.exports = {
 
   development: {
-    client: 'sqlite3',
+    client: 'pg',
+    ssl: false,
     connection: {
-      filename: './dev.sqlite3',
-      timezone: 'UTC',
+      host: '127.0.0.1',
+      port: '5433',
+      user: 'dev',
+      password: 'dev',
+      database: 'spotshare',
+      ssl: false,
       dateStrings: true
-    }
+    },
+    useNullAsDefault: true
   },
 
   testing: {
