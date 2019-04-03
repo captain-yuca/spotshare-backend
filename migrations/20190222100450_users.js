@@ -1,13 +1,15 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('users', (table) => {
     table.increments('uid').primary()
-    table.string('username', 20)
+    table.string('username')
     table.string('email')
-    table.string('hash')
-    table.string('salt')
+    table.string('hash', 5000)
+    table.string('salt', 5000)
   })
 }
 
 exports.down = function (knex, Promise) {
-  return knex.schema.dropTable('users')
+  return Promise.all([
+    knex.schema.dropTableIfExists('users')
+  ])
 }

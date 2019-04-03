@@ -4,8 +4,13 @@ exports.up = function (knex, Promise) {
     table.increments('id').primary()
     table.string('imgUrl')
     table.string('title')
-    table.date('date')
+    table.timestamp('date')
     table.integer('userId')
+    table.string('style', 5000)
+    table.integer('spotId')
+    table.text('message')
+    table.float('latitude')
+    table.float('longitude')
   })
 }
 
