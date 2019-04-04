@@ -7,7 +7,7 @@
 // const knexCleaner = require('knex-cleaner')
 
 // var sqlite3 = require('sqlite3')
-describe('Postcard Routes', async () => {
+describe('Postcard Routes', () => {
   const createServer = require('../../../lib')
   const factory = require('../../factories')
   let server
@@ -15,16 +15,14 @@ describe('Postcard Routes', async () => {
   let postcard
   let unauthorizedUser
 
-  beforeAll(async () => {
+  beforeAll(async (done) => {
     // await knexCleaner.clean(knex)
     server = await createServer
     user = await factory.create('user')
     unauthorizedUser = await factory.create('user')
-    console.log(user.uid)
-    console.log(unauthorizedUser.uid)
     postcard = await factory.create('postcard', { userId: user.uid })
-    console.log(postcard.id)
     await factory.createMany('postcard_without_assoc', 30, { userId: user.uid })
+    done()
   })
 
   afterAll(async () => {
@@ -41,6 +39,7 @@ describe('Postcard Routes', async () => {
           'Authorization': `${await authService.generateJWT(user)}`
         }
       })
+      // console.error(response)
       expect(response.statusCode).toEqual(200)
       var payload = JSON.parse(response.payload)
       expect(payload).toBeInstanceOf(Object)
@@ -77,7 +76,7 @@ describe('Postcard Routes', async () => {
     })
   })
 
-  describe('get multiple postcards', async () => {
+  describe('get multiple postcards', () => {
     // let knex = Knex(knexConfig.testing)
 
     beforeAll(async () => {
@@ -114,6 +113,24 @@ describe('Postcard Routes', async () => {
       expect(payload).toBeInstanceOf(Object)
       expect(payload.postcards).toBeInstanceOf(Array)
       expect(payload.postcards).toHaveLength(20)
+    })
+
+    test('return postcards with with query search param with 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards?q=${postcard.title}`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcards).toBeInstanceOf(Array)
+      for (let i = 0; i < payload.postcards.length; i++) {
+        expect(payload.postcards[i].title).toEqual(postcard.title)
+      }
     })
   })
   describe('collect postcard', async () => {
