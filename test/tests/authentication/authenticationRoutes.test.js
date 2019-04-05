@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
-const createServer = require('../lib')
-const factory = require('./factories')
+const createServer = require('../../../lib')
+const factory = require('../../factories')
 // const DatabaseCleaner = require('database-cleaner')
 // const databaseCleaner = new DatabaseCleaner('sqlite')
 // const Knex = require('knex')
