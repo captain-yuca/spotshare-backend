@@ -3,8 +3,8 @@ const Hapi = require('hapi')
 const Schmervice = require('schmervice')
 const Schwifty = require('schwifty')
 const AuthenticationService = require('../../../lib/modules/auth/services/authService')
-const MockUserRepository = require('../../mocks/userRepository')
-const UserRepository = require('../../../lib/modules/auth/repositories/userRepository')
+const MockAuthRepository = require('../../mocks/authRepository')
+const UserRepository = require('../../../lib/modules/auth/repositories/authRepository')
 const faker = require('faker')
 var crypto = require('crypto')
 const {
@@ -21,7 +21,7 @@ describe('Authentication Service Unit Tests', () => {
   beforeEach(async () => {
     server = await Hapi.Server()
     await server.register(Schmervice)
-    await server.registerService(MockUserRepository)
+    await server.registerService(MockAuthRepository)
     await server.registerService(AuthenticationService)
   })
 
@@ -86,7 +86,7 @@ describe('Authentication Service integrated with Repositories', () => {
   const factory = require('../../factories')
   const Knex = require('knex')
   const knexConfig = require('../../../knexfile')
-  const UserObjectionModel = require('../../../lib/modules/auth/models/User')
+  const UserObjectionModel = require('../../../lib/modules/auth/models/Auth')
   const { Model } = require('objection')
 
   let server, knex

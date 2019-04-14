@@ -2,7 +2,7 @@ const Schmervice = require('schmervice')
 const {
   NotFoundError
 } = require('objection')
-class UserRepository extends Schmervice.Service {
+class AuthRepository extends Schmervice.Service {
   async findByEmail (email) {
     let result
     if (email === 'notfound@email.com') {
@@ -42,7 +42,7 @@ class UserRepository extends Schmervice.Service {
   async update (user) {}
 }
 
-module.exports = UserRepository
+module.exports = AuthRepository
 // module.exports = {
 //   name: 'postcardRepositoryPlugin',
 //   version: '1.0.0',
