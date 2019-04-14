@@ -13,4 +13,4 @@ before_script:
   - psql -c 'CREATE DATABASE spotshare;' -U postgres
   - psql -c "CREATE USER test WITH PASSWORD 'test';" -U postgres
   - npm install -g knex
-  - knex migrate:latest
+  - knex migrate:latest --env testing
