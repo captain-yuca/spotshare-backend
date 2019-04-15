@@ -138,7 +138,7 @@ describe('Postcard Routes', () => {
       const { authService } = server.services()
       const reqPayload = {
         postcard: {
-          spotId: 1
+          spotId: '1'
         }
       }
       const response = await server.inject({
@@ -157,7 +157,7 @@ describe('Postcard Routes', () => {
       const { authService } = server.services()
       const reqPayload = {
         postcard: {
-          spotId: -1
+          spotId: '-1'
         }
       }
       const response = await server.inject({
