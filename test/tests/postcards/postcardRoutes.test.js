@@ -172,4 +172,38 @@ describe('Postcard Routes', () => {
     })
     test.todo('user already has a postcard from that place 403')
   })
+
+  describe('tags', async () => {
+    let postcardWithoutTags
+
+    beforeAll(async (done) => {
+      // await knexCleaner.clean(knex)
+      postcardWithoutTags = await factory.create('postcard', { userId: user.uid })
+      done()
+    })
+
+    test('successfully created tag on an existing postcard 200', async () => {
+      const { authService } = server.services()
+      var { id } = postcardWithoutTags
+      const reqPayload = {
+        tag: {
+          type: 'category',
+          text: 'dogs'
+        }
+      }
+      const response = await server.inject({
+        method: 'POST',
+        url: `/api/postcards/${id}/tags`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      console.log(payload)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+    })
+  })
 })
