@@ -172,4 +172,159 @@ describe('Postcard Routes', () => {
     })
     test.todo('user already has a postcard from that place 403')
   })
+
+  describe('create tags', async () => {
+    let postcardWithoutTags1
+    let postcardWithoutTags2
+    let postcardWithoutTags3
+    let sharedUser
+
+    beforeAll(async (done) => {
+      // await knexCleaner.clean(knex)
+      sharedUser = await factory.create('user')
+      postcardWithoutTags1 = await factory.create('postcard', { userId: user.uid })
+      postcardWithoutTags2 = await factory.create('postcard', { userId: user.uid })
+      postcardWithoutTags3 = await factory.create('postcard', { userId: user.uid })
+      done()
+    })
+
+    test('successfully created category tag on an existing postcard 200', async () => {
+      const { authService } = server.services()
+      var { id } = postcardWithoutTags1
+      const reqPayload = {
+        tag: {
+          type: 'category',
+          text: 'dogs'
+        }
+      }
+      const response = await server.inject({
+        method: 'POST',
+        url: `/api/postcards/${id}/tags`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      console.log(payload)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+    })
+
+    test('successfully created sharing tag on an existing postcard 200', async () => {
+      const { authService } = server.services()
+      var { id } = postcardWithoutTags2
+      const reqPayload = {
+        tag: {
+          type: 'sharing',
+          text: sharedUser.username
+        }
+      }
+      const response = await server.inject({
+        method: 'POST',
+        url: `/api/postcards/${id}/tags`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      console.log(payload)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+    })
+
+    test('successfully created public tag on an existing postcard 200', async () => {
+      const { authService } = server.services()
+      var { id } = postcardWithoutTags3
+      const reqPayload = {
+        tag: {
+          type: 'public'
+        }
+      }
+      const response = await server.inject({
+        method: 'POST',
+        url: `/api/postcards/${id}/tags`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      console.log(payload)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+    })
+  })
+
+  describe('search postcards by category tags', async () => {
+    let postcards
+    let user
+    let category
+
+    beforeAll(async (done) => {
+      category = 'animal'
+      user = await factory.create('user')
+      postcards = await factory.createMany('postcard_without_assoc', 3, { userId: user.uid })
+      for (let i = 0; i < postcards.length; i++) {
+        let p = postcards[i]
+        await factory.create('category_tag', { postcardId: p.id, text: category })
+      }
+      done()
+    })
+
+    test('return 3 postcards shared to me with 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards?limit=3&q=${category}`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcards).toBeInstanceOf(Array)
+      expect(payload.postcards).toHaveLength(3)
+    })
+  })
+
+  describe('search shared postcards by tags', async () => {
+    let postcards
+    let sharer
+    let reciever
+    // let category
+
+    beforeAll(async (done) => {
+      // category = 'animal'
+      sharer = await factory.create('user')
+      reciever = await factory.create('user')
+      postcards = await factory.createMany('postcard_without_assoc', 3, { userId: sharer.uid })
+      for (let i = 0; i < postcards.length; i++) {
+        let p = postcards[i]
+        await factory.create('sharing_tag', { postcardId: p.id, username: reciever.username })
+      }
+      done()
+    })
+
+    test('return 3 postcards shared to me with 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: '/api/postcards?limit=3&shared_with_me',
+        headers: {
+          'Authorization': `${await authService.generateJWT(reciever)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcards).toBeInstanceOf(Array)
+      expect(payload.postcards).toHaveLength(3)
+    })
+  })
 })
