@@ -176,7 +176,7 @@ describe('Postcard Routes', () => {
   describe('tags', async () => {
     let postcardWithoutTags1
     let postcardWithoutTags2
-    // let postcardWithoutTags3
+    let postcardWithoutTags3
     let sharedUser
 
     beforeAll(async (done) => {
@@ -184,11 +184,11 @@ describe('Postcard Routes', () => {
       sharedUser = await factory.create('user')
       postcardWithoutTags1 = await factory.create('postcard', { userId: user.uid })
       postcardWithoutTags2 = await factory.create('postcard', { userId: user.uid })
-      // postcardWithoutTags3 = await factory.create('postcard', { userId: user.uid })
+      postcardWithoutTags3 = await factory.create('postcard', { userId: user.uid })
       done()
     })
 
-    test('successfully created tag on an existing postcard 200', async () => {
+    test('successfully created category tag on an existing postcard 200', async () => {
       const { authService } = server.services()
       var { id } = postcardWithoutTags1
       const reqPayload = {
@@ -219,6 +219,29 @@ describe('Postcard Routes', () => {
         tag: {
           type: 'sharing',
           text: sharedUser.username
+        }
+      }
+      const response = await server.inject({
+        method: 'POST',
+        url: `/api/postcards/${id}/tags`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      console.log(payload)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+    })
+
+    test('successfully created public tag on an existing postcard 200', async () => {
+      const { authService } = server.services()
+      var { id } = postcardWithoutTags3
+      const reqPayload = {
+        tag: {
+          type: 'public'
         }
       }
       const response = await server.inject({
