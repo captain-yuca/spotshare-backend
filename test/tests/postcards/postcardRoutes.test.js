@@ -174,21 +174,51 @@ describe('Postcard Routes', () => {
   })
 
   describe('tags', async () => {
-    let postcardWithoutTags
+    let postcardWithoutTags1
+    let postcardWithoutTags2
+    // let postcardWithoutTags3
+    let sharedUser
 
     beforeAll(async (done) => {
       // await knexCleaner.clean(knex)
-      postcardWithoutTags = await factory.create('postcard', { userId: user.uid })
+      sharedUser = await factory.create('user')
+      postcardWithoutTags1 = await factory.create('postcard', { userId: user.uid })
+      postcardWithoutTags2 = await factory.create('postcard', { userId: user.uid })
+      // postcardWithoutTags3 = await factory.create('postcard', { userId: user.uid })
       done()
     })
 
     test('successfully created tag on an existing postcard 200', async () => {
       const { authService } = server.services()
-      var { id } = postcardWithoutTags
+      var { id } = postcardWithoutTags1
       const reqPayload = {
         tag: {
           type: 'category',
           text: 'dogs'
+        }
+      }
+      const response = await server.inject({
+        method: 'POST',
+        url: `/api/postcards/${id}/tags`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      console.log(payload)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+    })
+
+    test('successfully created sharing tag on an existing postcard 200', async () => {
+      const { authService } = server.services()
+      var { id } = postcardWithoutTags2
+      const reqPayload = {
+        tag: {
+          type: 'sharing',
+          text: sharedUser.username
         }
       }
       const response = await server.inject({
