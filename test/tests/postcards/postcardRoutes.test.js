@@ -260,7 +260,40 @@ describe('Postcard Routes', () => {
     })
   })
 
-  describe('search by tags', async () => {
+  describe('search postcards by category tags', async () => {
+    let postcards
+    let user
+    let category
+
+    beforeAll(async (done) => {
+      category = 'animal'
+      user = await factory.create('user')
+      postcards = await factory.createMany('postcard_without_assoc', 3, { userId: user.uid })
+      for (let i = 0; i < postcards.length; i++) {
+        let p = postcards[i]
+        await factory.create('category_tag', { postcardId: p.id, text: category })
+      }
+      done()
+    })
+
+    test('return 3 postcards shared to me with 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards?limit=3&q=${category}`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcards).toBeInstanceOf(Array)
+      expect(payload.postcards).toHaveLength(3)
+    })
+  })
+
+  describe('search shared postcards by tags', async () => {
     let postcards
     let sharer
     let reciever
