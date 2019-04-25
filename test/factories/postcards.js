@@ -7,6 +7,14 @@ module.exports = async (factory) => {
     isPublicTag: true
 
   })
+  factory.define('category_tag', Tag, {
+    isPublicTag: false,
+    text: () => faker.random.word()
+  })
+  factory.define('sharing_tag', Tag, {
+    isPublicTag: false
+
+  })
   factory.define('postcard_without_assoc', Postcard, ({
     imgUrl: 'https://ak5.picdn.net/shutterstock/videos/3683705/thumb/1.jpg',
     title: () => faker.random.word(),

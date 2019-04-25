@@ -173,7 +173,7 @@ describe('Postcard Routes', () => {
     test.todo('user already has a postcard from that place 403')
   })
 
-  describe('tags', async () => {
+  describe('create tags', async () => {
     let postcardWithoutTags1
     let postcardWithoutTags2
     let postcardWithoutTags3
@@ -257,6 +257,41 @@ describe('Postcard Routes', () => {
       console.log(payload)
       expect(payload.tags).toBeInstanceOf(Array)
       expect(payload.tags).toHaveLength(1)
+    })
+  })
+
+  describe('search by tags', async () => {
+    let postcards
+    let sharer
+    let reciever
+    // let category
+
+    beforeAll(async (done) => {
+      // category = 'animal'
+      sharer = await factory.create('user')
+      reciever = await factory.create('user')
+      postcards = await factory.createMany('postcard_without_assoc', 3, { userId: sharer.uid })
+      for (let i = 0; i < postcards.length; i++) {
+        let p = postcards[i]
+        await factory.create('sharing_tag', { postcardId: p.id, username: reciever.username })
+      }
+      done()
+    })
+
+    test('return 3 postcards shared to me with 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: '/api/postcards?limit=3&shared_with_me',
+        headers: {
+          'Authorization': `${await authService.generateJWT(reciever)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcards).toBeInstanceOf(Array)
+      expect(payload.postcards).toHaveLength(3)
     })
   })
 })
