@@ -315,7 +315,7 @@ describe('Postcard Routes', () => {
       const { authService } = server.services()
       const response = await server.inject({
         method: 'GET',
-        url: '/api/postcards?limit=3&shared_with_me',
+        url: '/api/postcards?limit=3&visibility=shared',
         headers: {
           'Authorization': `${await authService.generateJWT(reciever)}`
         }
