@@ -1,11 +1,11 @@
 /* eslint-env jest */
+const faker = require('faker')
 
 // const DatabaseCleaner = require('database-cleaner')
 // const databaseCleaner = new DatabaseCleaner('sqlite')
 // const Knex = require('knex')
 // const knexConfig = require('../../../knexfile')
 // const knexCleaner = require('knex-cleaner')
-
 // var sqlite3 = require('sqlite3')
 describe('Postcard Routes', () => {
   const createServer = require('../../../lib')
@@ -137,8 +137,18 @@ describe('Postcard Routes', () => {
     test('successfully created postcard 200', async () => {
       const { authService } = server.services()
       const reqPayload = {
-        postcard: {
-          spotId: '1'
+        spot: {
+          id: faker.random.number().toString(),
+          name: faker.random.word(),
+          location: {
+            latitude: faker.random.number(-9999, 9999, 10),
+            longitude: faker.random.number(-9999, 9999, 10)
+          },
+          picture: {
+            data: {
+              url: faker.image.nightlife()
+            }
+          }
         }
       }
       const response = await server.inject({
@@ -153,23 +163,23 @@ describe('Postcard Routes', () => {
       var payload = JSON.parse(response.payload)
       expect(payload.postcard).toBeInstanceOf(Object)
     })
-    test('nonexistant spot 403', async () => {
-      const { authService } = server.services()
-      const reqPayload = {
-        postcard: {
-          spotId: '-1'
-        }
-      }
-      const response = await server.inject({
-        method: 'POST',
-        url: '/api/postcards',
-        headers: {
-          'Authorization': `${await authService.generateJWT(user)}`
-        },
-        payload: reqPayload
-      })
-      expect(response.statusCode).toEqual(403)
-    })
+    // test('nonexistant spot 403', async () => {
+    //   const { authService } = server.services()
+    //   const reqPayload = {
+    //     postcard: {
+    //       spotId: '-1'
+    //     }
+    //   }
+    //   const response = await server.inject({
+    //     method: 'POST',
+    //     url: '/api/postcards',
+    //     headers: {
+    //       'Authorization': `${await authService.generateJWT(user)}`
+    //     },
+    //     payload: reqPayload
+    //   })
+    //   expect(response.statusCode).toEqual(403)
+    // })
     test.todo('user already has a postcard from that place 403')
   })
 
