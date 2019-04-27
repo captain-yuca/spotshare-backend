@@ -270,6 +270,40 @@ describe('Postcard Routes', () => {
     })
   })
 
+  describe('delete tags', async () => {
+    let postcard
+    let user
+    let sharedUser
+    let category
+
+    beforeEach(async (done) => {
+      category = 'animal'
+      user = await factory.create('user')
+      sharedUser = await factory.create('user', { username: category })
+      postcard = await factory.create('postcard_without_assoc', { userId: user.uid })
+      await factory.create('category_tag', { postcardId: postcard.id, text: category })
+      await factory.create('sharing_tag', { postcardId: postcard.id, username: sharedUser.username })
+      done()
+    })
+
+    test('delete category tag return 200', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/api/postcards/${postcard.id}/tags/${category}?type=category`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+      expect(payload.tags[0].text).toEqual(category)
+    })
+  })
+
   describe('category tags', async () => {
     let postcards
     let user
@@ -303,7 +337,7 @@ describe('Postcard Routes', () => {
         expect(payload.tags[0].text).toEqual(category)
       })
     })
-    describe('search postcards by category tags', async () => {
+    describe('search postcards by public tags', async () => {
       test('return 3 postcards shared to me with 200 status', async () => {
         const { authService } = server.services()
         const response = await server.inject({
