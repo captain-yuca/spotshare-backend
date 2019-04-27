@@ -183,6 +183,43 @@ describe('Postcard Routes', () => {
     test.todo('user already has a postcard from that place 403')
   })
 
+  describe('edit postcard', async () => {
+    let postcardToEdit
+    let user
+    beforeAll(async (done) => {
+      user = await factory.create('user')
+      postcardToEdit = await factory.create('postcard', { userId: user.uid })
+      done()
+    })
+
+    test('return 200 when edit the postcard', async () => {
+      const { authService } = server.services()
+      var { id } = postcardToEdit
+      const reqPayload = {
+        postcard: {
+          title: faker.random.word(),
+          imgUrl: faker.image.nature(),
+          style: { test: 'herrow' },
+          message: faker.lorem.words(5)
+        }
+      }
+
+      const response = await server.inject({
+        method: 'PATCH',
+        url: `/api/postcards/${id}`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload.postcard).toBeInstanceOf(Object)
+      expect(payload.postcard.title).toEqual(reqPayload.postcard.title)
+      expect(payload.postcard.message).toEqual(reqPayload.postcard.message)
+    })
+  })
+
   describe('create tags', async () => {
     let postcardWithoutTags1
     let postcardWithoutTags2
