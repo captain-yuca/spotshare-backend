@@ -43,6 +43,7 @@ describe('Authentication Routes', async () => {
       expect(payload).toBeInstanceOf(Object)
       expect(payload.activity).toBeInstanceOf(Object)
       expect(payload.activity.postcardCount).toEqual(30)
+      expect(payload.activity.postcardCollectionLog).toHaveLength(30)
     })
   })
   describe('editUser', async () => {
