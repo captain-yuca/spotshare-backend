@@ -270,7 +270,7 @@ describe('Postcard Routes', () => {
     })
   })
 
-  describe('search postcards by category tags', async () => {
+  describe('category tags', async () => {
     let postcards
     let user
     let category
@@ -285,21 +285,40 @@ describe('Postcard Routes', () => {
       }
       done()
     })
-
-    test('return 3 postcards shared to me with 200 status', async () => {
-      const { authService } = server.services()
-      const response = await server.inject({
-        method: 'GET',
-        url: `/api/postcards?limit=3&q=${category}`,
-        headers: {
-          'Authorization': `${await authService.generateJWT(user)}`
-        }
+    describe('get tags', async () => {
+      test('return 1 tag 200', async () => {
+        const { authService } = server.services()
+        const response = await server.inject({
+          method: 'GET',
+          url: `/api/postcards/${postcards[0].id}/tags`,
+          headers: {
+            'Authorization': `${await authService.generateJWT(user)}`
+          }
+        })
+        expect(response.statusCode).toEqual(200)
+        var payload = JSON.parse(response.payload)
+        expect(payload).toBeInstanceOf(Object)
+        expect(payload.tags).toBeInstanceOf(Array)
+        expect(payload.tags).toHaveLength(1)
+        expect(payload.tags[0].text).toEqual(category)
       })
-      expect(response.statusCode).toEqual(200)
-      var payload = JSON.parse(response.payload)
-      expect(payload).toBeInstanceOf(Object)
-      expect(payload.postcards).toBeInstanceOf(Array)
-      expect(payload.postcards).toHaveLength(3)
+    })
+    describe('search postcards by category tags', async () => {
+      test('return 3 postcards shared to me with 200 status', async () => {
+        const { authService } = server.services()
+        const response = await server.inject({
+          method: 'GET',
+          url: `/api/postcards?limit=3&q=${category}`,
+          headers: {
+            'Authorization': `${await authService.generateJWT(user)}`
+          }
+        })
+        expect(response.statusCode).toEqual(200)
+        var payload = JSON.parse(response.payload)
+        expect(payload).toBeInstanceOf(Object)
+        expect(payload.postcards).toBeInstanceOf(Array)
+        expect(payload.postcards).toHaveLength(3)
+      })
     })
   })
 
