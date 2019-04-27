@@ -301,6 +301,25 @@ describe('Postcard Routes', () => {
       expect(payload.tags).toBeInstanceOf(Array)
       expect(payload.tags).toHaveLength(1)
       expect(payload.tags[0].text).toEqual(category)
+      expect(payload.tags[0].type).toEqual('sharing')
+    })
+
+    test('delete username tag return 200', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/api/postcards/${postcard.id}/tags/${category}?type=sharing`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+      expect(payload.tags[0].text).toEqual(category)
+      expect(payload.tags[0].type).toEqual('category')
     })
   })
 
