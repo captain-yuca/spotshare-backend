@@ -12,6 +12,39 @@ const moment = require('moment')
 
 // var sqlite3 = require('sqlite3')
 describe('Authentication Routes', async () => {
+  describe('generate user activity report', async () => {
+    let server
+    // let client
+    let user
+    beforeAll(async () => {
+    })
+    afterAll(async () => {
+      await server.stop()
+    })
+
+    beforeEach(async () => {
+      server = await createServer
+      user = await factory.create('user')
+      await factory.createMany('postcard_without_assoc', 30, { userId: user.uid })
+    })
+
+    test('generate a user report status 200', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: '/api/users/activity',
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
+      })
+
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.activity).toBeInstanceOf(Object)
+      expect(payload.activity.postcardCount).toEqual(30)
+    })
+  })
   describe('editUser', async () => {
     let server
     // let client
