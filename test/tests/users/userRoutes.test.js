@@ -64,12 +64,34 @@ describe('Authentication Routes', async () => {
       user = await factory.create('user')
     })
 
-    test('return status 200 when valid request with updated user', async () => {
+    test('return status 200 when valid firstName and lastName with updated user', async () => {
       const { authService } = server.services()
       let reqPayload = {
         user: {
           firstName: faker.name.firstName(),
-          lastName: faker.name.lastName(),
+          lastName: faker.name.lastName()
+        }
+      }
+      const response = await server.inject({
+        method: 'PATCH',
+        url: '/api/users',
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        },
+        payload: reqPayload
+      })
+
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.user).toBeDefined()
+      expect(payload.user).toMatchObject(reqPayload.user)
+    })
+
+    test('return status 200 when valid birthdate with updated user', async () => {
+      const { authService } = server.services()
+      let reqPayload = {
+        user: {
           birthdate: moment(faker.date.past(18).toISOString()).format('MM-DD-YYYY')
         }
       }
