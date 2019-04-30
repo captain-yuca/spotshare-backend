@@ -423,14 +423,14 @@ describe('Postcard Routes', () => {
       sharer = await factory.create('user')
       reciever = await factory.create('user')
       postcards = await factory.createMany('postcard_without_assoc', 3, { userId: sharer.uid })
-      for (let i = 0; i < postcards.length; i++) {
+      for (let i = 1; i < postcards.length; i++) {
         let p = postcards[i]
         await factory.create('sharing_tag', { postcardId: p.id, username: reciever.username })
       }
       done()
     })
 
-    test('return 3 postcards shared to me with 200 status', async () => {
+    test('return 2 postcards shared to me with 200 status', async () => {
       const { authService } = server.services()
       const response = await server.inject({
         method: 'GET',
@@ -443,7 +443,7 @@ describe('Postcard Routes', () => {
       var payload = JSON.parse(response.payload)
       expect(payload).toBeInstanceOf(Object)
       expect(payload.postcards).toBeInstanceOf(Array)
-      expect(payload.postcards).toHaveLength(3)
+      expect(payload.postcards).toHaveLength(2)
     })
   })
 })
