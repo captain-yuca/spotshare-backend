@@ -14,4 +14,16 @@ module.exports = async (factory) => {
       return model
     }
   })
+
+  factory.define('alberto', User, () => ({
+    username: 'alberto',
+    email: faker.internet.email()
+    // uid: factory.seq('User.uid', (n) => n)
+  }), {
+    afterBuild: async (model, attrs, buildOptions) => {
+      model.salt = crypto.randomBytes(16).toString('hex')
+      model.hash = crypto.pbkdf2Sync('alberto', model.salt, 10000, 512, 'sha512').toString('hex')
+      return model
+    }
+  })
 }

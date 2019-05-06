@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/nodemon --ignore test/ ",
-    "test": "./node_modules/.bin/standard && ./node_modules/.bin/jest --runInBand --coverage --forceExit"
+    "test": "./node_modules/.bin/standard && ./node_modules/.bin/jest --runInBand --coverage --forceExit",
+    "starttest": "cross-env NODE_ENV=testing ./node_modules/.bin/nodemon --ignore test/ "
+
   },
   "repository": {
     "type": "git",
@@ -46,6 +48,7 @@
     "axios": "^0.18.0",
     "blipp": "^3.1.2",
     "boom": "^7.3.0",
+    "cross-env": "^5.2.0",
     "crypto": "^1.0.1",
     "dotenv": "^6.2.0",
     "glue": "^6.0.0",
