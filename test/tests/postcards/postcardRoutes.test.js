@@ -59,6 +59,7 @@ describe('Postcard Routes', () => {
           'Authorization': `${await authService.generateJWT(unauthorizedUser)}`
         }
       })
+      console.log(JSON.parse(response.payload))
       expect(response.statusCode).toEqual(401)
     })
 
@@ -76,7 +77,7 @@ describe('Postcard Routes', () => {
     })
   })
 
-  describe('get multiple postcards', () => {
+  describe('get multiple Postcards', () => {
     // let knex = Knex(knexConfig.testing)
 
     beforeAll(async () => {
@@ -133,7 +134,8 @@ describe('Postcard Routes', () => {
       }
     })
   })
-  describe('collect postcard', async () => {
+
+  describe('collect Postcard', async () => {
     test('successfully created postcard 200', async () => {
       const { authService } = server.services()
       const reqPayload = {
@@ -163,23 +165,6 @@ describe('Postcard Routes', () => {
       var payload = JSON.parse(response.payload)
       expect(payload.postcard).toBeInstanceOf(Object)
     })
-    // test('nonexistant spot 403', async () => {
-    //   const { authService } = server.services()
-    //   const reqPayload = {
-    //     postcard: {
-    //       spotId: '-1'
-    //     }
-    //   }
-    //   const response = await server.inject({
-    //     method: 'POST',
-    //     url: '/api/postcards',
-    //     headers: {
-    //       'Authorization': `${await authService.generateJWT(user)}`
-    //     },
-    //     payload: reqPayload
-    //   })
-    //   expect(response.statusCode).toEqual(403)
-    // })
     test.todo('user already has a postcard from that place 403')
   })
 
@@ -360,7 +345,7 @@ describe('Postcard Routes', () => {
     })
   })
 
-  describe('category tags', async () => {
+  describe('Category Tags', async () => {
     let postcards
     let user
     let category
@@ -375,44 +360,89 @@ describe('Postcard Routes', () => {
       }
       done()
     })
-    describe('get tags', async () => {
-      test('return 1 tag 200', async () => {
-        const { authService } = server.services()
-        const response = await server.inject({
-          method: 'GET',
-          url: `/api/postcards/${postcards[0].id}/tags`,
-          headers: {
-            'Authorization': `${await authService.generateJWT(user)}`
-          }
-        })
-        expect(response.statusCode).toEqual(200)
-        var payload = JSON.parse(response.payload)
-        expect(payload).toBeInstanceOf(Object)
-        expect(payload.tags).toBeInstanceOf(Array)
-        expect(payload.tags).toHaveLength(1)
-        expect(payload.tags[0].text).toEqual(category)
+    test('return 1 tag 200', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards/${postcards[0].id}/tags`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
       })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.tags).toBeInstanceOf(Array)
+      expect(payload.tags).toHaveLength(1)
+      expect(payload.tags[0].text).toEqual(category)
     })
-    describe('search postcards by public tags', async () => {
-      test('return 3 postcards shared to me with 200 status', async () => {
-        const { authService } = server.services()
-        const response = await server.inject({
-          method: 'GET',
-          url: `/api/postcards?limit=3&q=${category}`,
-          headers: {
-            'Authorization': `${await authService.generateJWT(user)}`
-          }
-        })
-        expect(response.statusCode).toEqual(200)
-        var payload = JSON.parse(response.payload)
-        expect(payload).toBeInstanceOf(Object)
-        expect(payload.postcards).toBeInstanceOf(Array)
-        expect(payload.postcards).toHaveLength(3)
+    test('return 3 postcards with 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards?limit=3&q=${category}`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(user)}`
+        }
       })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcards).toBeInstanceOf(Array)
+      expect(payload.postcards).toHaveLength(3)
     })
   })
 
-  describe('search shared postcards by tags', async () => {
+  describe('Public Tags', async () => {
+    let postcards
+    let sharer
+    let otherUser
+
+    beforeAll(async (done) => {
+      // category = 'animal'
+      sharer = await factory.create('user')
+      otherUser = await factory.create('user')
+      postcards = await factory.createMany('postcard_without_assoc', 3, { userId: sharer.uid })
+      for (let i = 1; i < postcards.length; i++) {
+        let p = postcards[i]
+        await factory.create('public_tag', { postcardId: p.id })
+      }
+      done()
+    })
+
+    test('return a specific public postcard 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards/${postcards[1].id}`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(otherUser)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcard).toMatchObject(postcards[1])
+    })
+
+    test('return 2 postcards 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards?limit=2&visibility=public`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(otherUser)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcards).toBeInstanceOf(Array)
+      expect(payload.postcards).toHaveLength(2)
+    })
+  })
+
+  describe('Shared Tags', async () => {
     let postcards
     let sharer
     let reciever
@@ -428,6 +458,21 @@ describe('Postcard Routes', () => {
         await factory.create('sharing_tag', { postcardId: p.id, username: reciever.username })
       }
       done()
+    })
+
+    test('return a specific shared postcard postcards shared to me with 200 status', async () => {
+      const { authService } = server.services()
+      const response = await server.inject({
+        method: 'GET',
+        url: `/api/postcards/${postcards[1].id}`,
+        headers: {
+          'Authorization': `${await authService.generateJWT(reciever)}`
+        }
+      })
+      expect(response.statusCode).toEqual(200)
+      var payload = JSON.parse(response.payload)
+      expect(payload).toBeInstanceOf(Object)
+      expect(payload.postcard).toMatchObject(postcards[1])
     })
 
     test('return 2 postcards shared to me with 200 status', async () => {
